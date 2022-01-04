@@ -79,38 +79,15 @@ loop:
 
 func slidingDepthIncreaseCount(depths []int) (count int) {
     windowLen := 3
-    window := make([]int, windowLen)
-    var windowDepth int
-    var prevWindowDepth int
 
     for i, depth := range depths {
-        if len(window) == windowLen {
-            _, window = window[0], window[1:]
-        }
-
-        window = append(window, depth)
-
-        // need a full window first
-        if i < (windowLen - 1) {
+        if i < windowLen {
             continue
         }
 
-        windowDepth = 0
-        for _, d := range window {
-            windowDepth += d
-        }
-
-        // first window doesn't count as an increase
-        if i == (windowLen - 1) {
-            goto loop
-        }
-
-        if windowDepth > prevWindowDepth {
+        if depths[i - 3] < depth {
             count++
         }
-
-loop:
-        prevWindowDepth = windowDepth
     }
 
     return
