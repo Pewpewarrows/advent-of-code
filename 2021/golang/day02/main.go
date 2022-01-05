@@ -11,10 +11,15 @@ func main() {
     advent.Execute(scanInputData, &course)
 
     hPos, depth := coordinatesFromCourse(course)
-
     fmt.Println("horizontal position:", hPos)
     fmt.Println("depth:", depth)
-    fmt.Println("solution:", hPos * depth)
+    fmt.Println("part one:", hPos * depth)
+
+    hPos, depth = aimedCoordinatesFromCourse(course)
+
+    fmt.Println("aimed horizontal position:", hPos)
+    fmt.Println("aimed depth:", depth)
+    fmt.Println("part two:", hPos * depth)
 }
 
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
@@ -85,6 +90,26 @@ func coordinatesFromCourse(course []subCommand) (hPos int, depth int) {
             depth -= command.magnitude
             // don't allow depth above the surface
             depth = advent.MaxInt(0, depth)
+        }
+    }
+
+    return
+}
+
+func aimedCoordinatesFromCourse(course []subCommand) (hPos int, depth int) {
+    aim := 0
+
+    for _, command := range course {
+        switch command.direction {
+        case forward:
+            hPos += command.magnitude
+            depth += (aim * command.magnitude)
+            // don't allow depth above the surface
+            depth = advent.MaxInt(0, depth)
+        case down:
+            aim += command.magnitude
+        case up:
+            aim -= command.magnitude
         }
     }
 
