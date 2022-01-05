@@ -1,19 +1,36 @@
 package main
 
 import (
+    advent "github.com/Pewpewarrows/advent-of-code/pkg"
+    "bufio"
     "fmt"
 )
 
 func main() {
+    var course []subCommand
+    advent.Execute(inputFromScanner, &course)
+
+    hPos, depth := coordinatesFromCourse(course)
+
+    fmt.Println("horizontal position:", hPos)
+    fmt.Println("depth:", depth)
+    fmt.Println("solution:", hPos * depth)
 }
 
-// MaxInt returns the maximum value of two ints
-func MaxInt(x, y int) int {
-    if x < y {
-        return y
+func inputFromScanner(scanner *bufio.Scanner, inputDataPtr interface{}) {
+    course := *inputDataPtr.(*[]subCommand)
+    var direction string
+    var magnitude int
+
+    for scanner.Scan() {
+        fmt.Sscanf(scanner.Text(), "%s %d", &direction, &magnitude)
+        course = append(course, subCommand{
+            directionFromString(direction),
+            magnitude,
+        })
     }
 
-    return x
+    *inputDataPtr.(*[]subCommand) = course
 }
 
 type subDirection int
@@ -38,6 +55,20 @@ func (d subDirection) String() string {
     return "unknown"
 }
 
+// TODO: naming convention for conversion func like this?
+func directionFromString(s string) subDirection {
+    switch s {
+    case "forward":
+        return forward
+    case "down":
+        return down
+    case "up":
+        return up
+    }
+
+    return undefined
+}
+
 type subCommand struct {
     direction subDirection
     magnitude int
@@ -53,9 +84,8 @@ func coordinatesFromCourse(course []subCommand) (hPos int, depth int) {
         case up:
             depth -= command.magnitude
             // don't allow depth above the surface
-            depth = MaxInt(0, depth)
+            depth = advent.MaxInt(0, depth)
         }
-        fmt.Println(hPos, depth)
     }
 
     return
