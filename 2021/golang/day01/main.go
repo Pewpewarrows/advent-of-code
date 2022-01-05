@@ -8,7 +8,7 @@ import (
 
 func main() {
     var depths []int
-    advent.Execute(inputFromScanner, &depths)
+    advent.Execute(scanInputData, &depths)
 
     count := depthIncreaseCount(depths)
     slidingCount := slidingDepthIncreaseCount(depths)
@@ -17,7 +17,7 @@ func main() {
     fmt.Println("part two:", slidingCount)
 }
 
-func inputFromScanner(scanner *bufio.Scanner, inputDataPtr interface{}) {
+func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
     depths := *inputDataPtr.(*[]int)
     var i int
 

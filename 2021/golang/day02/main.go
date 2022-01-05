@@ -8,7 +8,7 @@ import (
 
 func main() {
     var course []subCommand
-    advent.Execute(inputFromScanner, &course)
+    advent.Execute(scanInputData, &course)
 
     hPos, depth := coordinatesFromCourse(course)
 
@@ -17,7 +17,7 @@ func main() {
     fmt.Println("solution:", hPos * depth)
 }
 
-func inputFromScanner(scanner *bufio.Scanner, inputDataPtr interface{}) {
+func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
     course := *inputDataPtr.(*[]subCommand)
     var direction string
     var magnitude int
