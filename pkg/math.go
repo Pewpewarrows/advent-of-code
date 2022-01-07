@@ -8,3 +8,8 @@ func MaxInt(x, y int) int {
 
     return x
 }
+
+// DivCeilInt returns the ceiled divison of two ints
+func DivCeilInt(x, y int) int {
+	return 1 + ((x - 1) / y)
+}
