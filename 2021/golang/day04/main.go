@@ -14,8 +14,10 @@ func main() {
     advent.Execute(scanInputData, &game)
 
     score := winningBingoScore(game)
+    fmt.Println("part one:", score)
 
-    fmt.Println("solution:", score)
+    score = lastWinningBingoScore(game)
+    fmt.Println("part two:", score)
 }
 
 type bingoGame struct {
@@ -176,6 +178,44 @@ func winningBingoScore(game bingoGame) (score int) {
         }
 
         if (winner != nil) {
+            winningBall = ball
+            break
+        }
+    }
+
+    if (winner == nil) {
+        // TODO: error
+    }
+
+    score = winner.score(winningBall)
+
+    return
+}
+
+func lastWinningBingoScore(game bingoGame) (score int) {
+    var winner *bingoBoard
+    var winningBall int
+    boardCount := len(game.boards)
+    var winningBoardCount int
+
+    for _, ball := range game.balls {
+        winningBoardCount = 0
+
+        for i := range game.boards {
+            if game.boards[i].isWinning() {
+                winningBoardCount++
+                continue
+            }
+
+            game.boards[i].markBall(ball)
+
+            if game.boards[i].isWinning() {
+                winningBoardCount++
+                winner = &game.boards[i]
+            }
+        }
+
+        if winningBoardCount == boardCount {
             winningBall = ball
             break
         }

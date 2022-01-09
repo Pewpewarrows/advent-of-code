@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestDomainProblem(t *testing.T) {
+func TestWinningBingoScore(t *testing.T) {
 	game := bingoGame{
 		[]int{
 			7,
@@ -68,5 +68,11 @@ func TestDomainProblem(t *testing.T) {
 
 	if actual != 4512 {
 		t.Errorf("example: expected 4512 actual %d", actual)
+	}
+
+    actual = lastWinningBingoScore(game)
+
+	if actual != 1924 {
+		t.Errorf("last example: expected 1924 actual %d", actual)
 	}
 }
