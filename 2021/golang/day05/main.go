@@ -4,6 +4,7 @@ import (
     advent "github.com/Pewpewarrows/advent-of-code/pkg"
     "bufio"
     "fmt"
+    "math"
 )
 
 func main() {
@@ -21,42 +22,32 @@ type ventLine struct {
 }
 
 func (v ventLine) coords() (xys [][2]int) {
-    // TODO: this only handles horizontal and vertical lines
-    var vertical bool
-    var smallerCoord, largerCoord int
+    // TODO: this only handles 45 deg diagonals
 
-    if v.x1 == v.x2 {
-        vertical = true
-        if v.y1 > v.y2 {
-            largerCoord = v.y1
-            smallerCoord = v.y2
-        } else {
-            largerCoord = v.y2
-            smallerCoord = v.y1
+    xSlope := v.x1 - v.x2
+    ySlope := v.y1 - v.y2
+    innerPointCount := advent.MaxInt(int(math.Abs(float64(xSlope))), int(math.Abs(float64(ySlope)))) - 1
+
+    if innerPointCount == 0 {
+        if (xSlope == 0) && (ySlope == 0) {
+            // tail and head are the same
+            xys = append(xys, [2]int{v.x1, v.y1})
+            return
         }
-    } else if v.y1 == v.y2 {
-        vertical = false
-        if v.x1 > v.x2 {
-            largerCoord = v.x1
-            smallerCoord = v.x2
-        } else {
-            largerCoord = v.x2
-            smallerCoord = v.x1
-        }
-    } else {
-        return
+
+        goto inclusive
     }
 
+    xSlope = -xSlope / (innerPointCount + 1)
+    ySlope = -ySlope / (innerPointCount + 1)
+
+    for i := 1; i <= innerPointCount; i++ {
+        xys = append(xys, [2]int{v.x1 + (xSlope * i), v.y1 + (ySlope * i)})
+    }
+
+inclusive:
     xys = append(xys, [2]int{v.x1, v.y1})
     xys = append(xys, [2]int{v.x2, v.y2})
-
-    for i := smallerCoord + 1; i < largerCoord; i++ {
-        if vertical {
-            xys = append(xys, [2]int{v.x1, i})
-        } else {
-            xys = append(xys, [2]int{i, v.y1})
-        }
-    }
 
     return
 }

@@ -19,7 +19,7 @@ func TestVentOverlapCount(t *testing.T) {
 	}
 	actual := ventOverlapCount(ventLines)
 
-	if actual != 5 {
-		t.Errorf("example: expected 5 actual %d", actual)
+	if actual != 12 {
+		t.Errorf("example: expected 12 actual %d", actual)
 	}
 }
