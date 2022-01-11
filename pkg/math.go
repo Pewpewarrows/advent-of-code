@@ -37,3 +37,19 @@ func MeanInts(xs []int) int {
 func MedianInts(xs []int) int {
     return (len(xs) + 1) / 2
 }
+
+// AverageInts returns the average value for a slice of ints
+func AverageInts(xs []int) (avg float64) {
+    for _, x := range xs {
+        avg += float64(x)
+    }
+
+    avg /= float64(len(xs))
+
+    return
+}
+
+// TriangleNumberInt returns the sum of all numbers 1...n
+func TriangleNumberInt(n int) int {
+    return (n * (n + 1)) / 2
+}

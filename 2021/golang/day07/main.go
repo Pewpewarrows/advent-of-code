@@ -5,6 +5,7 @@ import (
     "bufio"
     "fmt"
     "math"
+    "sort"
     "strconv"
     "strings"
 )
@@ -14,8 +15,10 @@ func main() {
     advent.Execute(scanInputData, &crabYs)
 
     fuelCount := cheapestFuelForAlignment(crabYs)
+    fmt.Println("part one:", fuelCount)
 
-    fmt.Println("solution:", fuelCount)
+    fuelCount = cheapestIncrementalFuelForAlignment(crabYs)
+    fmt.Println("part two:", fuelCount)
 }
 
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
@@ -41,6 +44,33 @@ func cheapestFuelForAlignment(crabYs []int) (fuelCount int) {
     for _, y := range crabYs {
         fuelCount += int(math.Abs(float64(y - mean)))
     }
+
+    return
+}
+
+func cheapestIncrementalFuelForAlignment(crabYs []int) (fuelCount int) {
+    // brute force search
+    cheapestFuelCount := 0
+    cheapestAlignment := 0
+    sort.Ints(crabYs)
+
+    for i := crabYs[0]; i < crabYs[len(crabYs) - 1]; i++ {
+        fuelCount = 0
+
+        for _, y := range crabYs {
+            fuelCount += advent.TriangleNumberInt(int(math.Abs(float64(y - i))))
+        }
+
+        if (cheapestFuelCount == 0) || (fuelCount < cheapestFuelCount) {
+            cheapestFuelCount = fuelCount
+            cheapestAlignment = i
+        }
+    }
+
+    // TODO: only while debug
+    fmt.Println("cheapestAlignment:", cheapestAlignment)
+
+    fuelCount = cheapestFuelCount
 
     return
 }

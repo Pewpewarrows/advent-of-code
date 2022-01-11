@@ -11,4 +11,10 @@ func TestCheapestFuelForAlignment(t *testing.T) {
 	if actual != 37 {
 		t.Errorf("example: expected 37 actual %d", actual)
 	}
+
+	actual = cheapestIncrementalFuelForAlignment(crabYs)
+
+	if actual != 168 {
+		t.Errorf("example incremental: expected 168 actual %d", actual)
+	}
 }
