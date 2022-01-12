@@ -199,6 +199,12 @@ func TestDomainProblem(t *testing.T) {
     actual := uniqueSegmentedDigitCount(data)
 
     if actual != 26 {
-        t.Errorf("simple: expected 26 actual %d", actual)
+        t.Errorf("example: expected 26 actual %d", actual)
+    }
+
+    actual = summingDisplayOutput(data)
+
+    if actual != 61229 {
+        t.Errorf("example summing: expected 61229 actual %d", actual)
     }
 }
