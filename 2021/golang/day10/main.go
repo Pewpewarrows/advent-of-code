@@ -4,6 +4,7 @@ import (
     advent "github.com/Pewpewarrows/advent-of-code/pkg"
     "bufio"
     "fmt"
+    "strings"
 )
 
 func main() {
@@ -11,8 +12,10 @@ func main() {
     advent.Execute(scanInputData, &navSubsystems)
 
     sum := summedSyntaxErrorScores(navSubsystems)
+    fmt.Println("part one:", sum)
 
-    fmt.Println("solution:", sum)
+    median := medianAutocompleteScore(navSubsystems)
+    fmt.Println("part two:", median)
 }
 
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
@@ -33,6 +36,24 @@ func summedSyntaxErrorScores(navSubsystems []string) (sum int) {
         '>': 25137,
     }
 
+    illegalRunes, _ := navSyntaxErrors(navSubsystems)
+
+    for _, r := range illegalRunes {
+        sum += pointsByIllegalRune[r]
+    }
+
+    return
+}
+
+func navSyntaxErrors(navSubsystems []string) (illegalRunes []rune, autocompletes []string) {
+    // TODO: these two should be in a bimap
+    chunkCloserByOpener := map[rune]rune {
+        '(': ')',
+        '[': ']',
+        '{': '}',
+        '<': '>',
+    }
+
     chunkOpenerByCloser := map[rune]rune {
         ')': '(',
         ']': '[',
@@ -40,8 +61,10 @@ func summedSyntaxErrorScores(navSubsystems []string) (sum int) {
         '>': '<',
     }
 
+subsystemLoop:
     for _, nav := range navSubsystems {
         var chunkStack []rune
+        var sb strings.Builder
 
         for _, r := range nav {
             // TODO: handle illegal opener
@@ -58,18 +81,60 @@ func summedSyntaxErrorScores(navSubsystems []string) (sum int) {
 
             // pop
             if len(chunkStack) == 0 {
-                sum += pointsByIllegalRune[r]
-                continue
+                illegalRunes = append(illegalRunes, r)
+                continue subsystemLoop
             }
 
             var top rune
             top, chunkStack = chunkStack[len(chunkStack) - 1], chunkStack[:len(chunkStack) - 1]
 
             if top != opener {
-                sum += pointsByIllegalRune[r]
+                illegalRunes = append(illegalRunes, r)
+                continue subsystemLoop
             }
+        }
+
+        for {
+            // pop
+            // TODO: refactor into pop function
+            if len(chunkStack) == 0 {
+                break
+            }
+
+            var top rune
+            top, chunkStack = chunkStack[len(chunkStack) - 1], chunkStack[:len(chunkStack) - 1]
+
+            sb.WriteRune(chunkCloserByOpener[top])
+        }
+
+        if sb.Len() != 0 {
+            autocompletes = append(autocompletes, sb.String())
         }
     }
 
     return
+}
+
+func medianAutocompleteScore(navSubsystems []string) int {
+    pointsByChunkCloser := map[rune]int {
+        ')': 1,
+        ']': 2,
+        '}': 3,
+        '>': 4,
+    }
+
+    _, autocompletes := navSyntaxErrors(navSubsystems)
+    var scores []int
+
+    for _, text := range autocompletes {
+        score := 0
+        for _, r := range text {
+            score *= 5
+            score += pointsByChunkCloser[r]
+        }
+
+        scores = append(scores, score)
+    }
+
+    return int(advent.MedianInts(scores))
 }
