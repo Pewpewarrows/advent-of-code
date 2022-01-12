@@ -15,6 +15,12 @@ func TestDomainProblem(t *testing.T) {
 	actual := summedLowPointRiskLevels(heightMap)
 
 	if actual != 15 {
-		t.Errorf("example: expected 15 actual %d", actual)
+		t.Errorf("example sum: expected 15 actual %d", actual)
+	}
+
+	actual = productOfLargestBasins(heightMap, 3)
+
+	if actual != 1134 {
+		t.Errorf("example product: expected 1134 actual %d", actual)
 	}
 }
