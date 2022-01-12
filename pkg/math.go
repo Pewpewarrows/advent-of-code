@@ -28,18 +28,9 @@ func DivCeilInt(x, y int) int {
 }
 
 // MeanInts returns the mean value for a slice of ints
-func MeanInts(xs []int) int {
-    sort.Ints(xs)
-    return xs[MedianInts(xs) - 1]
-}
+func MeanInts(xs []int) (avg float64) {
+    // TODO: 0-len check
 
-// MedianInts returns the median value for a slice of ints
-func MedianInts(xs []int) int {
-    return (len(xs) + 1) / 2
-}
-
-// AverageInts returns the average value for a slice of ints
-func AverageInts(xs []int) (avg float64) {
     for _, x := range xs {
         avg += float64(x)
     }
@@ -47,6 +38,22 @@ func AverageInts(xs []int) (avg float64) {
     avg /= float64(len(xs))
 
     return
+}
+
+// MedianInts returns the median value for a slice of ints
+func MedianInts(xs []int) float64 {
+    // TODO: 0-len check
+
+    sort.Ints(xs)
+
+    // even
+    if (len(xs) % 2) == 0 {
+        return MeanInts([]int{xs[(len(xs) / 2) - 1], xs[len(xs) / 2]})
+    }
+
+    // odd
+    i := (len(xs) + 1) / 2
+    return float64(xs[i - 1])
 }
 
 // TriangleNumberInt returns the sum of all numbers 1...n

@@ -39,10 +39,10 @@ func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
 }
 
 func cheapestFuelForAlignment(crabYs []int) (fuelCount int) {
-    mean := advent.MeanInts(crabYs)
+    median := advent.MedianInts(crabYs)
 
     for _, y := range crabYs {
-        fuelCount += int(math.Abs(float64(y - mean)))
+        fuelCount += int(math.Abs(float64(y) - median))
     }
 
     return
