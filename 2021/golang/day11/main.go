@@ -4,6 +4,8 @@ import (
     advent "github.com/Pewpewarrows/advent-of-code/pkg"
     "bufio"
     "fmt"
+    "strconv"
+    "strings"
 )
 
 func main() {
@@ -16,107 +18,113 @@ func main() {
 }
 
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
-    octopusGrid := *inputDataPtr.(*[]int)
-    var i int
+    octopusGrid := *inputDataPtr.(*[10][10]int)
+    lineNum := 0
+    var line string
 
     for scanner.Scan() {
-        fmt.Sscanf(scanner.Text(), "%d", &i)
-        octopusGrid = append(octopusGrid, i)
+        var row [10]int
+        fmt.Sscanf(scanner.Text(), "%s", &line)
+        for n, s := range strings.Split(line, "") {
+            i, err := strconv.ParseInt(s, 10, 32)
+            if err != nil {
+                // TODO: handle me
+            }
+            // TODO: why is i here an int64?
+            row[n] = int(i)
+        }
+        octopusGrid[lineNum] = row
+        lineNum++
     }
 
-    *inputDataPtr.(*[]int) = octopusGrid
+    *inputDataPtr.(*[10][10]int) = octopusGrid
 }
 
 func flashCountSimulation(octopusGrid [10][10]int, stepCount int) (flashCount int) {
-    fmt.Println(octopusGrid)
     for s := 0; s < stepCount; s++ {
-        var nextOctopusGrid [10][10]int
+        var flashGrid [10][10]bool
 
-        // first compute new energy levels
         for i := 0; i < len(octopusGrid); i++ {
-            hasUp := true
-            if i == 0 {
-                hasUp = false
-            }
-
-            hasDown := true
-            if i == (len(octopusGrid) - 1) {
-                hasDown = false
-            }
-
             for j := 0; j < len(octopusGrid[i]); j++ {
-                hasLeft := true
-                if j == 0 {
-                    hasLeft = false
-                }
-
-                hasRight := true
-                if j == (len(octopusGrid[i]) - 1) {
-                    hasRight = false
-                }
-
-                // count the surrounding 9+s on all eight adjacent positions
-                adjacentFlashCount := 0
-                if hasUp {
-                    if hasLeft {
-                        if octopusGrid[i - 1][j - 1] >= 9 {
-                            adjacentFlashCount++
-                        }
-                    }
-                    if octopusGrid[i - 1][j] >= 9 {
-                        adjacentFlashCount++
-                    }
-                    if hasRight {
-                        if octopusGrid[i - 1][j + 1] >= 9 {
-                            adjacentFlashCount++
-                        }
-                    }
-                }
-                if hasRight {
-                    if octopusGrid[i][j + 1] >= 9 {
-                        adjacentFlashCount++
-                    }
-                }
-                if hasDown {
-                    if hasRight {
-                        if octopusGrid[i + 1][j + 1] >= 9 {
-                            adjacentFlashCount++
-                        }
-                    }
-                    if octopusGrid[i + 1][j] >= 9 {
-                        adjacentFlashCount++
-                    }
-                    if hasLeft {
-                        if octopusGrid[i + 1][j - 1] >= 9 {
-                            adjacentFlashCount++
-                        }
-                    }
-                }
-                if hasLeft {
-                    if octopusGrid[i][j - 1] >= 9 {
-                        adjacentFlashCount++
-                    }
-                }
-
-                nextOctopusGrid[i][j] = (octopusGrid[i][j] + 1 + adjacentFlashCount)
+                octopusGrid[i][j]++
             }
         }
 
-        // TODO: this isn't adequate, may be a chain reaction of flashes
-        octopusGrid = nextOctopusGrid
+        for {
+            didFlash := false
 
-        // then count flashes and reset to 0
+            for i := 0; i < len(octopusGrid); i++ {
+                hasUp := true
+                if i == 0 {
+                    hasUp = false
+                }
+
+                hasDown := true
+                if i == (len(octopusGrid) - 1) {
+                    hasDown = false
+                }
+
+                for j := 0; j < len(octopusGrid[i]); j++ {
+                    hasLeft := true
+                    if j == 0 {
+                        hasLeft = false
+                    }
+
+                    hasRight := true
+                    if j == (len(octopusGrid[i]) - 1) {
+                        hasRight = false
+                    }
+
+                    if octopusGrid[i][j] < 10 {
+                        continue
+                    }
+
+                    if flashGrid[i][j] {
+                        continue
+                    }
+
+                    flashGrid[i][j] = true
+                    didFlash = true
+                    flashCount++
+
+                    if hasUp {
+                        if hasLeft {
+                            octopusGrid[i - 1][j - 1]++
+                        }
+                        octopusGrid[i - 1][j]++
+                        if hasRight {
+                            octopusGrid[i - 1][j + 1]++
+                        }
+                    }
+                    if hasRight {
+                        octopusGrid[i][j + 1]++
+                    }
+                    if hasDown {
+                        if hasRight {
+                            octopusGrid[i + 1][j + 1]++
+                        }
+                        octopusGrid[i + 1][j]++
+                        if hasLeft {
+                            octopusGrid[i + 1][j - 1]++
+                        }
+                    }
+                    if hasLeft {
+                        octopusGrid[i][j - 1]++
+                    }
+                }
+            }
+
+            if !didFlash {
+                break
+            }
+        }
+
         for i := 0; i < len(octopusGrid); i++ {
             for j := 0; j < len(octopusGrid[i]); j++ {
                 if (octopusGrid[i][j] > 9) {
-                    flashCount++
                     octopusGrid[i][j] = 0
                 }
             }
-        }
-
-        if (s == 0) || (s == 1) || (s == 2) {
-            fmt.Println(octopusGrid)
         }
     }
 
