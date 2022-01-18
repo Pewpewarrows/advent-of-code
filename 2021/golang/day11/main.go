@@ -11,11 +11,13 @@ import (
 func main() {
     var grid octopusGrid
     advent.Execute(scanInputData, &grid)
+    grid2 := octopusGrid{}
+    grid.Copy(&grid2)
 
     flashCount := flashCountSimulation(grid, 100)
     fmt.Println("part one:", flashCount)
 
-    steps := stepsUntilFlashSync(grid)
+    steps := stepsUntilFlashSync(grid2)
     fmt.Println("part two:", steps)
 }
 
@@ -27,6 +29,19 @@ type octopusGrid struct {
 
 func (o *octopusGrid) String() string {
     return fmt.Sprintf("step #%d with %d cumulative flashes", o.stepCount, o.flashCount)
+}
+
+// in production code instead use a lib like https://github.com/jinzhu/copier
+func (o *octopusGrid) Copy(dupe *octopusGrid) {
+    dupe.energyLevels = make([][]int, len(o.energyLevels))
+    // copy(dupe.energyLevels, o.energyLevels)
+    for i := range dupe.energyLevels {
+        dupe.energyLevels[i] = make([]int, len(o.energyLevels[i]))
+        copy(dupe.energyLevels[i], o.energyLevels[i])
+    }
+
+    dupe.stepCount = o.stepCount
+    dupe.flashCount = o.flashCount
 }
 
 func (o *octopusGrid) step() {
@@ -121,6 +136,22 @@ func (o *octopusGrid) step() {
     o.stepCount++
 }
 
+func (o *octopusGrid) flashIsSynced() bool {
+    prevEnergyLevel := o.energyLevels[0][0]
+
+    for i := 0; i < len(o.energyLevels); i++ {
+        for j := 0; j < len(o.energyLevels[i]); j++ {
+            if (o.energyLevels[i][j] != prevEnergyLevel) {
+                return false
+            }
+
+            prevEnergyLevel = o.energyLevels[i][j]
+        }
+    }
+
+    return true
+}
+
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
     grid := *inputDataPtr.(*octopusGrid)
     var line string
@@ -151,5 +182,11 @@ func flashCountSimulation(grid octopusGrid, stepCount int) (flashCount int) {
 }
 
 func stepsUntilFlashSync(grid octopusGrid) (steps int) {
-    return
+    for {
+        grid.step()
+
+        if grid.flashIsSynced() {
+            return grid.stepCount
+        }
+    }
 }

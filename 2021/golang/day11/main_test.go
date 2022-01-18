@@ -21,15 +21,18 @@ func TestDomainProblem(t *testing.T) {
 		0,
 		0,
 	}
+    grid2 := octopusGrid{}
+    grid.Copy(&grid2)
+
 	actual := flashCountSimulation(grid, 100)
 
 	if actual != 1656 {
 		t.Errorf("example: expected 1656 actual %d", actual)
 	}
 
-	actual = stepsUntilFlashSync(grid)
+	actual = stepsUntilFlashSync(grid2)
 
-	if actual != 185 {
-		t.Errorf("example steps: expected 185 actual %d", actual)
+	if actual != 195 {
+		t.Errorf("example steps: expected 195 actual %d", actual)
 	}
 }
