@@ -9,18 +9,120 @@ import (
 )
 
 func main() {
-    var octopusGrid [][]int
-    advent.Execute(scanInputData, &octopusGrid)
+    var grid octopusGrid
+    advent.Execute(scanInputData, &grid)
 
-    flashCount := flashCountSimulation(octopusGrid, 100)
+    flashCount := flashCountSimulation(grid, 100)
     fmt.Println("part one:", flashCount)
 
-    steps := stepsUntilFlashSync(octopusGrid)
+    steps := stepsUntilFlashSync(grid)
     fmt.Println("part two:", steps)
 }
 
+type octopusGrid struct {
+    energyLevels [][]int
+    stepCount int
+    flashCount int
+}
+
+func (o *octopusGrid) String() string {
+    return fmt.Sprintf("step #%d with %d cumulative flashes", o.stepCount, o.flashCount)
+}
+
+func (o *octopusGrid) step() {
+    flashGrid := make([][]bool, len(o.energyLevels))
+    for i := range flashGrid {
+        flashGrid[i] = make([]bool, len(o.energyLevels[i]))
+    }
+
+    for i := 0; i < len(o.energyLevels); i++ {
+        for j := 0; j < len(o.energyLevels[i]); j++ {
+            o.energyLevels[i][j]++
+        }
+    }
+
+    for {
+        didFlash := false
+
+        for i := 0; i < len(o.energyLevels); i++ {
+            hasUp := true
+            if i == 0 {
+                hasUp = false
+            }
+
+            hasDown := true
+            if i == (len(o.energyLevels) - 1) {
+                hasDown = false
+            }
+
+            for j := 0; j < len(o.energyLevels[i]); j++ {
+                hasLeft := true
+                if j == 0 {
+                    hasLeft = false
+                }
+
+                hasRight := true
+                if j == (len(o.energyLevels[i]) - 1) {
+                    hasRight = false
+                }
+
+                if o.energyLevels[i][j] < 10 {
+                    continue
+                }
+
+                if flashGrid[i][j] {
+                    continue
+                }
+
+                flashGrid[i][j] = true
+                didFlash = true
+                o.flashCount++
+
+                if hasUp {
+                    if hasLeft {
+                        o.energyLevels[i - 1][j - 1]++
+                    }
+                    o.energyLevels[i - 1][j]++
+                    if hasRight {
+                        o.energyLevels[i - 1][j + 1]++
+                    }
+                }
+                if hasRight {
+                    o.energyLevels[i][j + 1]++
+                }
+                if hasDown {
+                    if hasRight {
+                        o.energyLevels[i + 1][j + 1]++
+                    }
+                    o.energyLevels[i + 1][j]++
+                    if hasLeft {
+                        o.energyLevels[i + 1][j - 1]++
+                    }
+                }
+                if hasLeft {
+                    o.energyLevels[i][j - 1]++
+                }
+            }
+        }
+
+        if !didFlash {
+            break
+        }
+    }
+
+    for i := 0; i < len(o.energyLevels); i++ {
+        for j := 0; j < len(o.energyLevels[i]); j++ {
+            if (o.energyLevels[i][j] > 9) {
+                o.energyLevels[i][j] = 0
+            }
+        }
+    }
+
+    o.stepCount++
+}
+
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
-    octopusGrid := *inputDataPtr.(*[][]int)
+    grid := *inputDataPtr.(*octopusGrid)
     var line string
 
     for scanner.Scan() {
@@ -34,106 +136,20 @@ func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
             // TODO: why is i here an int64?
             row = append(row, int(i))
         }
-        octopusGrid = append(octopusGrid, row)
+        grid.energyLevels = append(grid.energyLevels, row)
     }
 
-    *inputDataPtr.(*[][]int) = octopusGrid
+    *inputDataPtr.(*octopusGrid) = grid
 }
 
-func flashCountSimulation(octopusGrid [][]int, stepCount int) (flashCount int) {
+func flashCountSimulation(grid octopusGrid, stepCount int) (flashCount int) {
     for s := 0; s < stepCount; s++ {
-        flashGrid := make([][]bool, len(octopusGrid))
-        for i := range flashGrid {
-            flashGrid[i] = make([]bool, len(octopusGrid[i]))
-        }
-
-        for i := 0; i < len(octopusGrid); i++ {
-            for j := 0; j < len(octopusGrid[i]); j++ {
-                octopusGrid[i][j]++
-            }
-        }
-
-        for {
-            didFlash := false
-
-            for i := 0; i < len(octopusGrid); i++ {
-                hasUp := true
-                if i == 0 {
-                    hasUp = false
-                }
-
-                hasDown := true
-                if i == (len(octopusGrid) - 1) {
-                    hasDown = false
-                }
-
-                for j := 0; j < len(octopusGrid[i]); j++ {
-                    hasLeft := true
-                    if j == 0 {
-                        hasLeft = false
-                    }
-
-                    hasRight := true
-                    if j == (len(octopusGrid[i]) - 1) {
-                        hasRight = false
-                    }
-
-                    if octopusGrid[i][j] < 10 {
-                        continue
-                    }
-
-                    if flashGrid[i][j] {
-                        continue
-                    }
-
-                    flashGrid[i][j] = true
-                    didFlash = true
-                    flashCount++
-
-                    if hasUp {
-                        if hasLeft {
-                            octopusGrid[i - 1][j - 1]++
-                        }
-                        octopusGrid[i - 1][j]++
-                        if hasRight {
-                            octopusGrid[i - 1][j + 1]++
-                        }
-                    }
-                    if hasRight {
-                        octopusGrid[i][j + 1]++
-                    }
-                    if hasDown {
-                        if hasRight {
-                            octopusGrid[i + 1][j + 1]++
-                        }
-                        octopusGrid[i + 1][j]++
-                        if hasLeft {
-                            octopusGrid[i + 1][j - 1]++
-                        }
-                    }
-                    if hasLeft {
-                        octopusGrid[i][j - 1]++
-                    }
-                }
-            }
-
-            if !didFlash {
-                break
-            }
-        }
-
-        for i := 0; i < len(octopusGrid); i++ {
-            for j := 0; j < len(octopusGrid[i]); j++ {
-                if (octopusGrid[i][j] > 9) {
-                    octopusGrid[i][j] = 0
-                }
-            }
-        }
+        grid.step()
     }
 
-    return
+    return grid.flashCount
 }
 
-func stepsUntilFlashSync(octopusGrid [][]int) (steps int) {
+func stepsUntilFlashSync(grid octopusGrid) (steps int) {
     return
 }
