@@ -9,40 +9,43 @@ import (
 )
 
 func main() {
-    var octopusGrid [10][10]int
+    var octopusGrid [][]int
     advent.Execute(scanInputData, &octopusGrid)
 
     flashCount := flashCountSimulation(octopusGrid, 100)
+    fmt.Println("part one:", flashCount)
 
-    fmt.Println("solution:", flashCount)
+    steps := stepsUntilFlashSync(octopusGrid)
+    fmt.Println("part two:", steps)
 }
 
 func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
-    octopusGrid := *inputDataPtr.(*[10][10]int)
-    lineNum := 0
+    octopusGrid := *inputDataPtr.(*[][]int)
     var line string
 
     for scanner.Scan() {
-        var row [10]int
+        var row []int
         fmt.Sscanf(scanner.Text(), "%s", &line)
-        for n, s := range strings.Split(line, "") {
+        for _, s := range strings.Split(line, "") {
             i, err := strconv.ParseInt(s, 10, 32)
             if err != nil {
                 // TODO: handle me
             }
             // TODO: why is i here an int64?
-            row[n] = int(i)
+            row = append(row, int(i))
         }
-        octopusGrid[lineNum] = row
-        lineNum++
+        octopusGrid = append(octopusGrid, row)
     }
 
-    *inputDataPtr.(*[10][10]int) = octopusGrid
+    *inputDataPtr.(*[][]int) = octopusGrid
 }
 
-func flashCountSimulation(octopusGrid [10][10]int, stepCount int) (flashCount int) {
+func flashCountSimulation(octopusGrid [][]int, stepCount int) (flashCount int) {
     for s := 0; s < stepCount; s++ {
-        var flashGrid [10][10]bool
+        flashGrid := make([][]bool, len(octopusGrid))
+        for i := range flashGrid {
+            flashGrid[i] = make([]bool, len(octopusGrid[i]))
+        }
 
         for i := 0; i < len(octopusGrid); i++ {
             for j := 0; j < len(octopusGrid[i]); j++ {
@@ -128,5 +131,9 @@ func flashCountSimulation(octopusGrid [10][10]int, stepCount int) (flashCount in
         }
     }
 
+    return
+}
+
+func stepsUntilFlashSync(octopusGrid [][]int) (steps int) {
     return
 }
