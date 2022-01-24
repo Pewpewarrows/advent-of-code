@@ -12,9 +12,11 @@ func main() {
     var caveGraph graph
     advent.Execute(scanInputData, &caveGraph)
 
-    pathCount := pathCountWithSmallCavesOnce(&caveGraph)
+    pathCount := caveGraph.pathCount(1, 1)
+    fmt.Println("part one:", pathCount)
 
-    fmt.Println("solution:", pathCount)
+    pathCount = caveGraph.pathCount(1, 2)
+    fmt.Println("part two:", pathCount)
 }
 
 // assumed all edges are bidirectional
@@ -70,6 +72,12 @@ func newGraph(edges [][2]string) *graph {
     return &graph{nodes, start, end}
 }
 
+func (caveGraph *graph) pathCount(maxSmallCaveVisits int, maxSingleSmallCaveVisits int) (pathCount int) {
+    paths := allPathsFromChain(path{caveGraph.start}, make(map[*node]int), caveGraph, maxSmallCaveVisits, maxSingleSmallCaveVisits)
+
+    return len(paths)
+}
+
 type node struct {
     label string
     peers []*node
@@ -111,17 +119,27 @@ func labelledNode(nodes []*node, label string) *node {
     return nil
 }
 
-func allPathsFromChain(chain path, visitedSmallNodes []*node, caveGraph *graph) (paths []path) {
+// TODO: this is an ugly number of params, find a better way
+func allPathsFromChain(chain path, visitCountBySmallNode map[*node]int, caveGraph *graph, maxSmallCaveVisits int, maxSingleSmallCaveVisits int) (paths []path) {
     // We assume that no two big caves are directly connected by an edge, which
     // would cause an infinite loop of potential paths
 
     n := chain[len(chain) - 1]
 
-    var nextVisitedSmallNodes []*node
+    nextVisitCountBySmallNode := make(map[*node]int)
+    for k, v := range visitCountBySmallNode {
+        nextVisitCountBySmallNode[k] = v
+    }
     if n.isSmallCave() {
-        nextVisitedSmallNodes = append(visitedSmallNodes, n)
-    } else {
-        nextVisitedSmallNodes = append(make([]*node, len(visitedSmallNodes)), visitedSmallNodes...)
+        nextVisitCountBySmallNode[n]++
+    }
+
+    chainIsAlreadyRevisitingChosenCave := false
+    for _, v := range nextVisitCountBySmallNode {
+        if v > maxSmallCaveVisits {
+            chainIsAlreadyRevisitingChosenCave = true
+            break
+        }
     }
 
     if n == caveGraph.end {
@@ -131,12 +149,22 @@ func allPathsFromChain(chain path, visitedSmallNodes []*node, caveGraph *graph) 
 
 peerLoop:
     for _, peer := range n.peers {
-        for _, v := range visitedSmallNodes {
-            if peer == v {
-                continue peerLoop
+        if peer.label == "start" {
+            continue
+        }
+        for k, v := range nextVisitCountBySmallNode {
+            if peer == k {
+                // if this peer is the chosen one, v > maxSmallCaveVisits
+                if chainIsAlreadyRevisitingChosenCave && ((v == maxSmallCaveVisits) || (v == maxSingleSmallCaveVisits)) {
+                    continue peerLoop
+                } else if (maxSmallCaveVisits == maxSingleSmallCaveVisits) && (v == maxSmallCaveVisits) {
+                    continue peerLoop
+                }
+
+                break
             }
         }
-        paths = append(paths, allPathsFromChain(append(chain, peer), nextVisitedSmallNodes, caveGraph)...)
+        paths = append(paths, allPathsFromChain(append(chain, peer), nextVisitCountBySmallNode, caveGraph, maxSmallCaveVisits, maxSingleSmallCaveVisits)...)
     }
 
     return
@@ -158,12 +186,6 @@ func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
     *inputDataPtr.(*graph) = *newGraph(edges)
 }
 
-func pathCountWithSmallCavesOnce(caveGraph *graph) (pathCount int) {
-    paths := allPathsFromChain(path{caveGraph.start}, []*node{}, caveGraph)
-
-    return len(paths)
-}
-
 type path []*node
 
 func (p path) String() string {
@@ -171,9 +193,9 @@ func (p path) String() string {
 
     for i, node := range p {
         if i != 0 {
-            b.WriteString(" ->")
+            b.WriteString(" -> ")
         }
-        b.WriteString(fmt.Sprintf(" %s", node.label))
+        b.WriteString(fmt.Sprintf("%s", node.label))
     }
 
     return b.String()

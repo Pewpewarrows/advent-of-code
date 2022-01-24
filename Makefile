@@ -11,6 +11,7 @@
 # cp -R 2021/golang/template 2021/golang/dayXX/
 
 # debugging a day:
+# go test github.com/Pewpewarrows/advent-of-code/2021/golang/day01 -v
 # dlv test github.com/Pewpewarrows/advent-of-code/2021/golang/day01
 # dlv test github.com/Pewpewarrows/advent-of-code/2021/golang/day01 -- test.v -test.run <name>
 # dlv debug 2021/golang/day01/main.go -- input.txt

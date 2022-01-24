@@ -4,7 +4,7 @@ import (
     "testing"
 )
 
-func TestDomainProblem(t *testing.T) {
+func TestCaveGraphPathCount(t *testing.T) {
     caveGraph := newGraph(
         [][2]string{
             {"start", "A"},
@@ -16,10 +16,13 @@ func TestDomainProblem(t *testing.T) {
             {"b", "end"},
         },
     )
-    actual := pathCountWithSmallCavesOnce(caveGraph)
-
+    actual := caveGraph.pathCount(1, 1)
     if actual != 10 {
-        t.Errorf("simple example: expected 10 actual %d", actual)
+        t.Errorf("simple example no small revisits: expected 10 actual %d", actual)
+    }
+    actual = caveGraph.pathCount(1, 2)
+    if actual != 36 {
+        t.Errorf("simple example 1/2 small revisits: expected 36 actual %d", actual)
     }
 
     caveGraph = newGraph(
@@ -36,10 +39,13 @@ func TestDomainProblem(t *testing.T) {
             {"kj", "dc"},
         },
     )
-    actual = pathCountWithSmallCavesOnce(caveGraph)
-
+    actual = caveGraph.pathCount(1, 1)
     if actual != 19 {
-        t.Errorf("larger example: expected 19 actual %d", actual)
+        t.Errorf("larger example no small revisits: expected 19 actual %d", actual)
+    }
+    actual = caveGraph.pathCount(1, 2)
+    if actual != 103 {
+        t.Errorf("larger example 1/2 small revisits: expected 103 actual %d", actual)
     }
 
     caveGraph = newGraph(
@@ -64,9 +70,12 @@ func TestDomainProblem(t *testing.T) {
             {"start", "RW"},
         },
     )
-    actual = pathCountWithSmallCavesOnce(caveGraph)
-
+    actual = caveGraph.pathCount(1, 1)
     if actual != 226 {
-        t.Errorf("even larger example: expected 226 actual %d", actual)
+        t.Errorf("even larger example no small revisits: expected 226 actual %d", actual)
+    }
+    actual = caveGraph.pathCount(1, 2)
+    if actual != 3509 {
+        t.Errorf("even larger example 1/2 small revisits: expected 3509 actual %d", actual)
     }
 }
