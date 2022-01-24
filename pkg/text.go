@@ -2,6 +2,7 @@ package advent
 
 import (
     "sort"
+    "unicode"
 )
 
 // see: https://stackoverflow.com/a/22698017
@@ -25,4 +26,22 @@ func SortedString(s string) string {
     r := []rune(s)
     sort.Sort(sortRunes(r))
     return string(r)
+}
+
+func IsUpper(s string) bool {
+    for _, r := range s {
+        if !unicode.IsUpper(r) && unicode.IsLetter(r) {
+            return false
+        }
+    }
+    return true
+}
+
+func IsLower(s string) bool {
+    for _, r := range s {
+        if !unicode.IsLower(r) && unicode.IsLetter(r) {
+            return false
+        }
+    }
+    return true
 }
