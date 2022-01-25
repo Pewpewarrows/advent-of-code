@@ -5,7 +5,7 @@ import (
 )
 
 func TestFoldableGridDotCount(t *testing.T) {
-    grid := newFoldableGrid(
+    grid := *newFoldableGrid(
         []coord{
             {6, 10},
             {0, 14},
@@ -27,9 +27,17 @@ func TestFoldableGridDotCount(t *testing.T) {
             {9, 0},
         },
     )
-    actual := grid.fold(fold{vertical, 7}).dotCount
+    grid = grid.fold(fold{vertical, 7})
+    actual := grid.dotCount
 
     if actual != 17 {
-        t.Errorf("example: expected 17 actual %d", actual)
+        t.Errorf("example dotCount: expected 17 actual %d", actual)
+    }
+
+    grid = grid.fold(fold{horizontal, 5})
+    vis := grid.visualization()
+
+    if vis != "#####\n#...#\n#...#\n#...#\n#####\n.....\n....." {
+        t.Errorf("example vis: expected ascii art of number 0, actual\n%s", vis)
     }
 }

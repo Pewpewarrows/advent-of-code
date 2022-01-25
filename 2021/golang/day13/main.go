@@ -3,6 +3,7 @@ package main
 import (
     advent "github.com/Pewpewarrows/advent-of-code/pkg"
     "bufio"
+    "bytes"
     "fmt"
 )
 
@@ -11,8 +12,15 @@ func main() {
     advent.Execute(scanInputData, &p)
 
     solution := p.fg.fold(p.folds[0]).dotCount
+    fmt.Println("part one:", solution)
 
-    fmt.Println("solution:", solution)
+    grid := p.fg
+    for _, f := range p.folds {
+        grid = grid.fold(f)
+    }
+
+    fmt.Println("part two:")
+    fmt.Println(grid.visualization())
 }
 
 type puzzle struct {
@@ -22,7 +30,6 @@ type puzzle struct {
 
 type fold struct {
     direction foldDirection
-    // TODO: technically shouldn't the index always be centered based on dir?
     index int
 }
 
@@ -62,11 +69,24 @@ func newFoldableGrid(coords []coord) *foldableGrid {
 
 func (g *foldableGrid) fold(f fold) foldableGrid {
     // TODO: validate that there are no dots on the fold line
-    // TODO: validate that f.index is in-bounds and in middle
+    // TODO: validate that f.index is in-bounds
 
-    grid := make([][]bool, len(g.grid))
+    var yLen int
+    var xLen int
+    if f.direction == vertical {
+        yLen = f.index
+        // TODO: this assumes all rows are the same length
+        xLen = len(g.grid[0])
+    } else if f.direction == horizontal {
+        yLen = len(g.grid)
+        xLen = f.index
+    } else {
+        // TODO: error
+    }
+
+    grid := make([][]bool, yLen)
     for i := range grid {
-        grid[i] = make([]bool, len(g.grid[i]))
+        grid[i] = make([]bool, xLen)
     }
 
     dotCount := 0
@@ -111,6 +131,26 @@ func (g *foldableGrid) fold(f fold) foldableGrid {
     }
 
     return foldableGrid{grid, dotCount}
+}
+
+func (g *foldableGrid) visualization() string {
+    var b bytes.Buffer
+
+    for i, row := range g.grid {
+        for _, isDot := range row {
+            if isDot {
+                b.WriteRune('#')
+            } else {
+                b.WriteRune('.')
+            }
+        }
+
+        if i != (len(g.grid) - 1) {
+            b.WriteString("\n")
+        }
+    }
+
+    return b.String()
 }
 
 type foldDirection int
