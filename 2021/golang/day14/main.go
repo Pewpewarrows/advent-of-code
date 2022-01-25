@@ -3,7 +3,6 @@ package main
 import (
     advent "github.com/Pewpewarrows/advent-of-code/pkg"
     "bufio"
-    "bytes"
     "fmt"
     "strings"
 )
@@ -13,8 +12,10 @@ func main() {
     advent.Execute(scanInputData, &p)
 
     solution := elementCountSpread(p.template, p.rules, 10)
+    fmt.Println("part one:", solution)
 
-    fmt.Println("solution:", solution)
+    solution = elementCountSpread(p.template, p.rules, 40)
+    fmt.Println("part two:", solution)
 }
 
 type puzzle struct {
@@ -50,31 +51,42 @@ func scanInputData(scanner *bufio.Scanner, inputDataPtr interface{}) {
 }
 
 func elementCountSpread(template string, rules map[string]rune, stepCount int) int {
-    polymer := template
+    polymer := make(map[string]int)
 
-    for i := 0; i < stepCount; i++ {
-        var b bytes.Buffer
-
-        for j, c := range polymer {
-            if j == (len(polymer) - 1) {
-                b.WriteRune(c)
-                break
-            }
-
-            b.WriteRune(c)
-            b.WriteRune(rules[string([]rune{c, rune(polymer[j + 1])})])
+    for i, r := range template {
+        if i == (len(template) - 1) {
+            break
         }
 
-        polymer = b.String()
+        polymer[string([]rune{r, rune(template[i + 1])})]++
+    }
+
+    for i := 0; i < stepCount; i++ {
+        nextPolymer := make(map[string]int)
+
+        for pair, c := range polymer {
+            nextPolymer[string([]rune{rune(pair[0]), rules[pair]})] += c
+            nextPolymer[string([]rune{rules[pair], rune(pair[1])})] += c
+        }
+
+        polymer = nextPolymer
     }
 
     elementCounts := make(map[rune]int)
-    for _, r := range polymer {
-        elementCounts[r]++
+    for pair, c := range polymer {
+        elementCounts[rune(pair[0])] += c
+        elementCounts[rune(pair[1])] += c
     }
 
-    largestCount := elementCounts[rune(polymer[0])]
-    smallestCount := elementCounts[rune(polymer[0])]
+    elementCounts[rune(template[0])]++
+    elementCounts[rune(template[len(template) - 1])]++
+
+    for i := range elementCounts {
+        elementCounts[i] /= 2
+    }
+
+    largestCount := elementCounts[rune(template[0])]
+    smallestCount := elementCounts[rune(template[0])]
 
     for _, c := range elementCounts {
         if c > largestCount {

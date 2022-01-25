@@ -29,4 +29,10 @@ func TestElementCountSpread(t *testing.T) {
     if actual != 1588 {
         t.Errorf("simple: expected 1588 actual %d", actual)
     }
+
+    actual = elementCountSpread(template, rules, 40)
+
+    if actual != 2188189693529 {
+        t.Errorf("simple: expected 2188189693529 actual %d", actual)
+    }
 }
