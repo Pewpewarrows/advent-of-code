@@ -36,6 +36,7 @@ defmodule AdventOfCode.Day02 do
     # - coc snippets?
     # - coc elixir ls?
     # - coc tab completion papercut? or tab+tab enough?
+    # - mix format everywhere
     strategy_guide = input_data |> strategy_guide_from_input_data
 
     strategy_guide
