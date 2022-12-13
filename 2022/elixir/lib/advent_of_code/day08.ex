@@ -131,6 +131,7 @@ defmodule AdventOfCode.Day08 do
         [Enum.reverse(left), right, Enum.reverse(up), down]
         |> Enum.map(fn view ->
           view
+          # TODO: is Enum.reduce_while sufficient?
           |> List.foldl({:cont, 0}, fn tree, {status, score} ->
             case status do
               :cont ->
