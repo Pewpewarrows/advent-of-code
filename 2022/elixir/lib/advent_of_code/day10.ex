@@ -6,7 +6,7 @@ defmodule AdventOfCode.Day10 do
   """
   @spec execute(String.t) :: nil
   def execute(input_data) do
-    instructions = input_data |> struct_from_input_data
+    instructions = input_data |> instructions_from_input_data
 
     instructions
     |> periodic_signal_strength_sum
@@ -21,7 +21,7 @@ defmodule AdventOfCode.Day10 do
   end
 
   # TODO: docs, spec
-  def struct_from_input_data(input_data) do
+  def instructions_from_input_data(input_data) do
     input_data
     |> String.split("\n")
     |> List.delete_at(-1)

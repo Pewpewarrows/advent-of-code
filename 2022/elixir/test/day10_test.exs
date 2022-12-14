@@ -308,7 +308,7 @@ defmodule Day10Test do
     #######.......#######.......#######.....
     """
 
-    assert AdventOfCode.Day10.struct_from_input_data(input_data) == instructions
+    assert AdventOfCode.Day10.instructions_from_input_data(input_data) == instructions
     assert AdventOfCode.Day10.periodic_signal_strength_sum(instructions) == 13140
     assert AdventOfCode.Day10.crt_text(instructions) == crt_text
   end

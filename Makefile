@@ -1,4 +1,7 @@
 # (personal note: SSO auth via GitHub, not Google)
+# Helpful links:
+# https://rosettacode.org/
+# https://programming-idioms.org/
 
 # all:
 # go test ./...
