@@ -1,3 +1,4 @@
+# TODO: use erlang's :queue?
 defmodule Stack do
   @moduledoc "Wrapper over lists with stack-like operations"
   defstruct elements: []
