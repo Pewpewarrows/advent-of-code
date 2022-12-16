@@ -26,6 +26,7 @@ defmodule AdventOfCode.Day12 do
     input_data
     |> String.split("\n")
     |> List.delete_at(-1)
+    |> Enum.map(&String.trim(&1))
     |> Enum.with_index
     |> Enum.reduce({nil, nil, %{}}, fn {line, y}, {start, finish, heightgrid} ->
       row =
