@@ -3,6 +3,13 @@
 # https://rosettacode.org/
 # https://programming-idioms.org/
 
+# Degrees of solutions:
+# 1. any (shortest development time)
+# 2. shortest runtime
+# 3. smallest memory usage
+# 4. idiomatic/clean
+# 5. clever alternatives
+
 # all:
 # go test ./...
 # cd 2022/elixir/ && mix test --stale
